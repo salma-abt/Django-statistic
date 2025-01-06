@@ -1,0 +1,44 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+<link href="{% static 'sign.css' %}" rel="stylesheet" type="text/css">
+
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="row w-100">
+        <div class="col-md-6 mx-auto">
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                {% if messages %}
+                    <div class="alert alert-danger alert-custom">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    </div>
+                {% endif %}
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="email" class="form-control" name="email" placeholder="Email Address" >
+                        <label for="floatingEmail">Email Address</label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input type="password" class="form-control" name="motdepass" placeholder="Password" >
+                        <label for="floatingPassword">Password</label>
+                    </div>
+                </div>
+                <button class="w-100 btn btn-lg btn-dark" type="submit">Login</button>
+                <div class="d-flex justify-content-center mb-5">
+                    <hr class="my-4">
+                    <small class="text-muted ">You dont have an account? <a href="{% url 'sign_up' %}">sign up</a></small>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock  %}

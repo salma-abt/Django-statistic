@@ -1,0 +1,60 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <div class="offcanvas offcanvas-start show text-bg-dark" data-bs-scroll="true" tabindex="-1" 
+    id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+   <div class="offcanvas-header">
+       <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Available Operations</h5>
+       <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+   </div>
+   <div class="offcanvas-body">
+       <a class="nav-link" href="{% url 'index_file' file_id %}">Indexation</a>
+       <a class="nav-link" href="{% url 'slice_file' file_id %}">Slicing</a>
+       <a class="nav-link" href="{% url 'vis_file' file_id %}">Visualisation(graphs)</a>
+       <a class="nav-link" href="{% url 'prob_file' file_id %}">Probability(var,mean,tend,pc)</a>
+   </div>
+</div>
+    <h2 class="fs-1">Indexing File: {{ file_name }}</h2>
+
+    
+    <!-- Form for Indexing -->
+    <h4 class="mt-4">Filter Data by Index:</h4>
+    <form method="post">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <!-- Dropdown for Column Name -->
+            <div class="col-md-6">
+                <label for="column_name" class="form-label">Select Column:</label>
+                <select name="column_name" id="column_name" class="form-select" required>
+                    <option value="" disabled selected>Select a column</option>
+                    {% for column in columns %}
+                    <option value="{{ column }}">{{ column }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Input for Index Value -->
+            <div class="col-md-6">
+                <label for="index_value" class="form-label">Row Index Value:</label>
+                <input type="number" name="index_value" id="index_value" class="form-control" placeholder="Enter row index" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <button class="btn btn-primary" style="height: 55px;" type="button" 
+              data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" 
+              aria-controls="offcanvasWithBothOptions">Operations</button>
+    </form>
+    
+    <!-- Display Indexed Data -->
+    {% if indexed_data_html %}
+    <h4 class="mt-4">Filtered Data:</h4>
+    <div class="table-responsive">
+        {{ indexed_data_html|safe }}
+    </div>
+    {% endif %}
+    
+</div>
+
+
+{% endblock %}

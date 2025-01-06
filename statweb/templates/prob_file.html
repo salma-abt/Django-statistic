@@ -1,0 +1,338 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="fs-1">Probabilty for File: {{ file_name }}</h2>
+    <div class="d-flex align-items-center mb-3">
+        <div class="form-floating me-2">
+            <input style="height: 40px; width: 213px;" type="number" placeholder="Number of Rows to Display" name="row_limit" id="row_limit" value="10" min="1" class="form-control" disabled>
+            <label for="row_limit">Number of Rows to Display</label>
+        </div>
+        <button class="btn btn-primary" style="height: 55px;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Operations</button>
+      </div>
+        <p class="d-inline-flex gap-1">
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                  Central Tendency
+          </button>
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#collapsevar" aria-expanded="false" aria-controls="collapsevar">
+                  Variability
+          </button>
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#collapsebin" aria-expanded="false" aria-controls="collapsebin">
+                  Binomial Law
+          </button>
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#collapseber" aria-expanded="false" aria-controls="collapseber">
+                  Bernouli Law
+          </button>
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#collapsen" aria-expanded="false" aria-controls="collapsen">
+                  Normal Continuous Law
+          </button>
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#collapsep" aria-expanded="false" aria-controls="collapsep">
+                  Poisson Law
+          </button>
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#collapseu" aria-expanded="false" aria-controls="collapseu">
+                  Uniform Distribution Law
+          </button>
+          <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#collapsee" aria-expanded="false" aria-controls="collapsee">
+                  Exponential Distribution Law
+          </button>
+      </p>
+      <div class="collapse" id="collapseExample">
+        <div class="card card-body"style=" width: 500px;">
+          <p class="form-label fw-bold">  Central Tendency</p>
+          <form method="get" action="{% url 'prob_file' file_id %}">
+            <div class="row mb-3">
+                <!-- Select Column for Mean -->
+                <div class="col-md-6">
+                    <label for="mcolumn" class="form-label fw-bold small">Select a column for mean (Quantitative):</label>
+                    <select name="mcolumn" id="mcolumn" class="form-select form-select-sm">
+                        <option value=""  selected>Select a column</option>
+                        {% for mcolumn in quantitative %}
+                            <option value="{{ mcolumn }}"
+                            {% if mcolumn == mean_column %}selected{% endif %}>
+                            {{ mcolumn }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Select Column for Median -->
+                <div class="col-md-6">
+                    <label for="mecolumn" class="form-label fw-bold small">Select a column for median (Quantitative):</label>
+                    <select name="mecolumn" id="mecolumn" class="form-select form-select-sm">
+                        <option value=""  selected>Select a column</option>
+                        {% for mecolumn in quantitative %}
+                            <option value="{{ mecolumn }}"
+                            {% if mecolumn == median_column %}selected{% endif %}>
+                            {{ mecolumn }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Select Column for Mode -->
+                <div class="col-md-6">
+                    <label for="ycolumn" class="form-label fw-bold small">Select a column for mode (Quantitative and Qualitative):</label>
+                    <select name="ycolumn" id="ycolumn" class="form-select form-select-sm">
+                        <option value=""  selected>Select a column</option>
+                        {% for ycolumn in mode %}
+                            <option value="{{ ycolumn }}"
+                            {% if ycolumn == mode_column %}selected{% endif %}>
+                            {{ ycolumn }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success btn-sm">Generate Result</button>
+        </form>
+          
+        </div>
+    </div>
+    <div class="collapse" id="collapsevar">
+      <div class="card card-body"style=" width: 500px;">
+        <p class="form-label fw-bold">  Variability</p>
+        <form method="get" action="{% url 'prob_file' file_id %}">
+          <div class="row mb-3">
+              <!-- Select Column for Mean -->
+              <div class="col-md-6">
+                  <label for="stdcolumn" class="form-label fw-bold small">Select a column for Standard Deviation (Quantitative):</label>
+                  <select name="stdcolumn" id="stdcolumn" class="form-select form-select-sm">
+                      <option value=""  selected>Select a column</option>
+                      {% for stdcolumn in quantitative %}
+                          <option value="{{ stdcolumn }}"
+                          {% if stdcolumn == std_column %}selected{% endif %}>
+                          {{ stdcolumn }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              
+              <!-- Select Column for Median -->
+              <div class="col-md-6">
+                  <label for="vcolumn" class="form-label fw-bold small">Select a column for Variance (Quantitative):</label>
+                  <select name="vcolumn" id="vcolumn" class="form-select form-select-sm">
+                      <option value=""  selected>Select a column</option>
+                      {% for vcolumn in quantitative %}
+                          <option value="{{ vcolumn }}"
+                          {% if vcolumn == var_column %}selected{% endif %}>
+                          {{ vcolumn }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <div class="col-md-6">
+                <label for="rcolumn" class="form-label fw-bold small">Select a column for Range (Quantitative):</label>
+                <select name="rcolumn" id="rcolumn" class="form-select form-select-sm">
+                    <option value=""  selected>Select a column</option>
+                    {% for rcolumn in quantitative %}
+                        <option value="{{ rcolumn }}"
+                        {% if rcolumn == ran_column %}selected{% endif %}>
+                        {{ rcolumn }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success btn-sm">Generate Result</button>
+      </form>
+        
+      </div>
+  </div>
+  <div class="collapse" id="collapsebin">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">Binomial Law</p>
+      <form method="get" action="{% url 'prob_file' file_id %}">
+        <div class="row mb-3">
+            <!-- Select Column for Mean -->
+            <div class="col-md-6">
+                <div class="form-floating">
+                  <input style="height: 20px; width: 200px;"placeholder="Number of trials" type="number" name="trials" id="trials" class="form-control" required>
+                  <label for="trials" disabled>Number of trials</label>
+              </div>
+            </div>
+            
+            <!-- Select Column for Median -->
+            <div class="col-md-6">
+              <div class="form-floating">
+                <input style="height: 20px; width: 200px;"placeholder="Probability of success" type="number" step="0.01" min="0" max="1" name="probability" id="probability" class="form-control" required>
+                <label for="probability" disabled>Probability of success</label>
+            </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success btn-sm">Generate Result</button>
+    </form>
+      
+    </div>
+</div>
+<div class="collapse" id="collapseber">
+  <div class="card card-body"style=" width: 500px;">
+    <p class="form-label fw-bold">Bernouli Law</p>
+    <form method="get" action="{% url 'prob_file' file_id %}">
+      <div class="row mb-3">
+          <!-- Select Column for Median -->
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input style="height: 20px; width: 200px;"placeholder="Probability of success" type="number" step="0.01" min="0" max="1" name="probabilityb" id="probabilityb" class="form-control" required>
+              <label for="probability" disabled>Probability of success</label>
+          </div>
+          </div>
+      </div>
+      <button type="submit" class="btn btn-success btn-sm">Generate Result</button>
+  </form>
+  </div>
+</div>
+<div class="collapse" id="collapsen">
+  <div class="card card-body"style=" width: 500px;">
+    <p class="form-label fw-bold">Normal Continuous Law</p>
+    <form method="get" action="{% url 'prob_file' file_id %}">
+      <div class="row mb-3">
+          <!-- Select Column for Median -->
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input style="height: 20px; width: 200px;"placeholder="Mean (µ)" step="any" type="number" name="mu" min="1" id="mu" class="form-control" required>
+              <label for="mu" disabled>Mean (µ)</label>
+          </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input style="height: 20px; width: 200px;"placeholder="Standard Deviation (σ)" type="number" min="1" step="any" name="sigma" id="sigma" class="form-control" required>
+              <label for="sigma" disabled>Standard Deviation (σ)</label>
+          </div>
+          </div>
+      </div>
+      <button type="submit" class="btn btn-success btn-sm">Generate Result</button>
+  </form>
+    
+  </div>
+</div>
+<div class="collapse" id="collapsep">
+  <div class="card card-body"style=" width: 500px;">
+    <p class="form-label fw-bold">Poisson Law</p>
+    <form method="get" action="{% url 'prob_file' file_id %}">
+      <div class="row mb-3">
+          <!-- Select Column for Median -->
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input style="height: 20px; width: 200px;"placeholder="Mean (λ)" type="number" step="0.01" min="1" name="lambda" id="lambda" class="form-control" required>
+              <label for="lambda" disabled>Mean (λ)</label>
+          </div>
+          </div>
+      </div>
+      <button type="submit" class="btn btn-success btn-sm">Generate Result</button>
+  </form>
+  </div>
+</div>
+<div class="collapse" id="collapseu">
+  <div class="card card-body"style=" width: 500px;">
+    <p class="form-label fw-bold">Uniform Distribution Law</p>
+    <form method="get" action="{% url 'prob_file' file_id %}">
+      <div class="row mb-3">
+          <!-- Select Column for Median -->
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input style="height: 20px; width: 200px;"placeholder="Minimum (a)" step="any" type="number" name="a" min="1" id="a" class="form-control" required>
+              <label for="a" disabled>Minimum (a)</label>
+          </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input style="height: 20px; width: 200px;"placeholder="Maximum (b)" type="number" min="1" step="any" name="b" id="b" class="form-control" required>
+              <label for="b" disabled>Maximum (b)</label>
+          </div>
+          </div>
+      </div>
+      <button type="submit" class="btn btn-success btn-sm">Generate Result</button>
+  </form>
+    
+  </div>
+</div>
+<div class="collapse" id="collapsee">
+  <div class="card card-body"style=" width: 500px;">
+    <p class="form-label fw-bold">Exponential Distribution Law</p>
+    <form method="get" action="{% url 'prob_file' file_id %}">
+      <div class="row mb-3">
+          <!-- Select Column for Median -->
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input style="height: 20px; width: 200px;"placeholder="Rate (λ)" type="number" step="0.01" min="0.01" name="lambdae" id="lambdae" class="form-control" required>
+              <label for="lambdae" disabled>Rate (λ)</label>
+          </div>
+          </div>
+      </div>
+      <button type="submit" class="btn btn-success btn-sm">Generate Result</button>
+  </form>
+  </div>
+</div>
+    <div class="results mt-3">
+      {% if ber_plot_data %}
+      <h3>Bernoulli Distribution Plot</h3>
+      <img src="data:image/png;base64,{{ ber_plot_data }}" alt="Bernoulli Distribution Plot">
+      {% elif bin_plot_data %}
+    <h3>Binomial Distribution Plot</h3>
+    <img src="data:image/png;base64,{{ bin_plot_data }}" alt="Binomial Distribution Plot">
+    {% elif norm_plot_data %}
+    <h3>Normal Distribution Plot</h3>
+    <img src="data:image/png;base64,{{ norm_plot_data }}" alt="Normal Distribution Plot">
+    {% elif poi_plot_data %}
+    <h3>Poisson Distribution Plot</h3>
+    <img src="data:image/png;base64,{{ poi_plot_data }}" alt="Poisson Distribution Plot">
+    {% elif uni_plot_data %}
+    <h3>Uniform Distribution Plot</h3>
+    <img src="data:image/png;base64,{{ uni_plot_data }}" alt="Uniform Distribution Plot">
+    {% elif exp_plot_data %}
+    <h3>Exponential Distribution Plot</h3>
+    <img src="data:image/png;base64,{{ exp_plot_data }}" alt="Exponential Distribution Plot">
+{% endif %}
+      {% if std_result or var_result %}
+      <h3 class="form-label fw-bold">  Variability</h3>
+      {% if std_result %}
+      <p><strong>Standard Deviation for column {{std_column}}: </strong>{{ std_result }}</p>
+      {% endif %}
+      {% if var_result %}
+        <p><strong>Variance for column {{var_column}}: </strong>{{ var_result }}</p>
+        {% endif %}
+        {% if range_result %}
+        <p><strong>Range for column {{ ran_column }}: </strong>{{ range_result }}</p>
+      {% endif %}
+      {% endif %}
+      {% if results %}
+      <h3 class="form-label fw-bold">  Central Tendency</h3>
+      {% if results.mean %}
+        <p><strong>Mean for column {{mean_column}}:</strong> {{ results.mean }}</p>
+      {% endif %}
+      {% if results.mean_error %}
+        <p class="text-danger"><strong>Mean Error for column {{mean_column}}:</strong> {{ results.mean_error }}</p>
+      {% endif %}
+
+      {% if results.median %}
+        <p><strong>Median for column {{median_column}}:</strong> {{ results.median }}</p>
+      {% endif %}
+      {% if results.median_error %}
+        <p class="text-danger"><strong>Median Error for {{median_column}}:</strong> {{ results.median_error }}</p>
+      {% endif %}
+
+      {% if results.mode %}
+        <p><strong>Mode for column {{mode_column}}:</strong> {{ results.mode }}</p>
+      {% endif %}
+      {% if results.mode_error %}
+        <p class="text-danger"><strong>Mode Error for column {{mode_column}}:</strong> {{ results.mode_error }}</p>
+      {% endif %}
+      {% endif %}
+  </div>
+<div class="offcanvas offcanvas-start show text-bg-dark" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Available Operations</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="nav-link" href="{% url 'index_file' file_id %}">Indexation</a>
+    <a class="nav-link" href="{% url 'slice_file' file_id %}">Slicing</a>
+    <a class="nav-link" href="{% url 'vis_file' file_id %}">Visualisation(graphs)</a>
+    <a class="nav-link" href="{% url 'prob_file' file_id %}">Probability(var,mean,tend,pc)</a>
+  </div>
+</div>
+</div>
+{% endblock %}

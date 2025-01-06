@@ -1,0 +1,586 @@
+
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+  <h2 class="fs-1">Visualising File: {{ file_name }}</h2>
+  <div class="d-flex align-items-center mb-3">
+      <!-- Disabled Input Field -->
+      <div class="form-floating me-2">
+          <input style="height: 40px; width: 213px;" type="number" placeholder="Number of Rows to Display" 
+                 name="row_limit" id="row_limit" value="{{ row_limit }}" min="1" class="form-control" disabled>
+          <label for="row_limit">Number of Rows Displayed</label>
+      </div>
+      <!-- Operations Button -->
+      <button class="btn btn-primary" style="height: 55px;" type="button" 
+              data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" 
+              aria-controls="offcanvasWithBothOptions">Operations</button>
+  </div>
+
+  <!-- Line Plot Collapse Section -->
+  <p class="d-inline-flex gap-1">
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+          Line Plot
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapsescatter" aria-expanded="false" aria-controls="collapsescatter">
+              Scatter Plot
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapsebox" aria-expanded="false" aria-controls="collapsebox">
+              Box Plot
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapsehist" aria-expanded="false" aria-controls="collapsehist">
+              Hist Plot
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapsekde" aria-expanded="false" aria-controls="collapsekde">
+              Kde Plot
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapsevio" aria-expanded="false" aria-controls="collapsevio">
+              Violin Plot
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapsebar" aria-expanded="false" aria-controls="collapsebar">
+              Bar Plot
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapseheat" aria-expanded="false" aria-controls="collapseheat">
+              Heatmap Plot
+      </button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+              data-bs-target="#collapsepie" aria-expanded="false" aria-controls="collapsepie">
+              Piechart Plot
+      </button>
+  </p>
+  
+<div class="collapse" id="collapseExample">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">  Line Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+          <div class="row mb-3">
+              <!-- Select X-Axis -->
+              <div class="col-md-6">
+                  <label for="xcolumn" class="form-label fw-bold small">Select X-axis (Date):</label>
+                  <select name="xcolumn" id="xcolumn" class="form-select form-select-sm" onchange="updateyColumn()">
+                      <option value="" disabled selected>Select X-axis</option>
+                      {% for date_column in date_columns %}
+                          <option value="{{ date_column }}" 
+                              {% if date_column == selected_date_column %}selected{% endif %}>
+                              {{ date_column }}
+                          </option>
+                      {% endfor %}
+                  </select>
+              </div>
+      
+              <!-- Select Y-Axis -->
+              <div class="col-md-6">
+                  <label for="ycolumn" class="form-label fw-bold small">Select Y-axis (Quantitative):</label>
+                  <select name="ycolumn" id="ycolumn" class="form-select form-select-sm" onchange="updatexColumn()">
+                      <option value="" disabled selected>Select Y-axis</option>
+                      {% for quantitatives in quantitative %}
+                          <option value="{{ quantitatives }}" 
+                              {% if quantitatives == selected_quantitative_column %}selected{% endif %}>
+                              {{ quantitatives }}
+                          </option>
+                      {% endfor %}
+                  </select>
+              </div>
+          </div>
+          <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+      </form>
+      
+    </div>
+</div>
+<div class="collapse" id="collapsescatter">
+    <div class="card card-body"style=" width: 500px;">
+        <p class="form-label fw-bold">  Scatter Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+        <div class="row mb-3">
+            <!-- Select X-Axis -->
+            <div class="col-md-6">
+                <label for="xscatter" class="form-label fw-bold small">Select X-axis (Quantitative):</label>
+                <select name="xscatter" id="xscatter" class="form-select form-select-sm" onchange="updateyscatter()">
+                    <option value="" disabled selected>Select X-axis</option>
+                    {% for quantitatives in quantitative %}
+                        <option value="{{ quantitatives }}" {% if quantitatives == selected_scatter_x %}selected{% endif %}>
+                            {{ quantitatives }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <!-- Select Y-Axis -->
+            <div class="col-md-6">
+                <label for="yscatter" class="form-label fw-bold small">Select Y-axis (Quantitative):</label>
+                <select name="yscatter" id="yscatter" class="form-select form-select-sm" onchange="updatexscatter()">
+                    <option value="" disabled selected>Select Y-axis</option>
+                    {% for quantitatives in quantitative %}
+                        <option value="{{ quantitatives }}" {% if quantitatives == selected_scatter_y %}selected{% endif %}>
+                            {{ quantitatives }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <!-- Select Hue -->
+            <div class="col-md-6">
+                <label for="hue_columns" class="form-label fw-bold small">Select Hue (Categorical):</label>
+                <select name="hue_columns" id="hue_columns" class="form-select form-select-sm" onchange="updateHueOrder()">
+                    <option value="" selected>Select Hue</option>
+                    {% for column in hue_columns %}
+                        <option value="{{ column }}" {% if column == selected_hue %}selected{% endif %}>
+                            {{ column }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <!-- Hue Order -->
+            <div class="col-md-6">
+                <label for="hue_order" class="form-label fw-bold small">Hue Order (Unique Values):</label>
+                <select name="hue_order" id="hue_order" class="form-select form-select-sm" multiple>
+                    {% for option in hue_order %}
+                        <option value="{{ option }}" {% if option in request_GET_hue_order %}selected{% endif %}>
+                            {{ option }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <!-- KDE Plot Switch -->
+            <div class="col-md-6 mt-2">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="kdeSwitch" name="kdePlot" value="on">
+                    <label class="form-check-label" for="kdeSwitch">Enable KDE Plot</label>
+                </div>
+            </div>
+        </div>
+        
+          <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+      </form>
+      
+    </div>
+</div>
+<div class="collapse" id="collapsebox">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">  Box Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+          <div class="row mb-3">
+              <!-- Select X-Axis -->
+              <div class="col-md-6">
+                  <label for="xbox" class="form-label fw-bold small">Select X-axis (Quantitative):</label>
+                  <select name="xbox" id="xbox" class="form-select form-select-sm">
+                      <option value="" selected>Select X-axis</option>
+                      {% for xbox in quantitative %}
+                          <option value="{{ xbox }}" 
+                              {% if xbox == selected_box_x %}selected{% endif %}>
+                              {{ xbox }}
+                          </option>
+                      {% endfor %}
+                  </select>
+              </div>
+      
+              <!-- Select Y-Axis -->
+              <div class="col-md-6">
+                  <label for="ybox" class="form-label fw-bold small">Select Y-axis (Categorical):</label>
+                  <select name="ybox" id="ybox" class="form-select form-select-sm" onchange="updatehbox()">
+                      <option value=""  selected>Select Y-axis</option>
+                      {% for ybox in hue_columns %}
+                        <option value="{{ ybox }}" 
+                        {% if ybox == selected_box_y %}selected{% endif %}>
+                            {{ ybox }}
+                        </option>
+                    {% endfor %}
+                  </select>
+              </div>
+              <div class="col-md-6">
+                <label for="hbox" class="form-label fw-bold small">Select Hue (Categorical):</label>
+                <select name="hbox" id="hbox" class="form-select form-select-sm" onchange="updateybox()">
+                    <option value=""  selected>Select Hue</option>
+                    {% for hbox in hue_columns %}
+                      <option value="{{ hbox }}" 
+                      {% if hbox == selected_hue_b %}selected{% endif %}>
+                          {{ hbox }}
+                      </option>
+                  {% endfor %}
+                </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+      </form>
+      
+    </div>
+</div>
+<div class="collapse" id="collapsehist">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">  Hist Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+          <div class="row mb-3">
+              <!-- Select X-Axis -->
+              <div class="col-md-6">
+                  <label for="xhist" class="form-label fw-bold small">Select X-axis (Categorical and Quantitative(discontinue)):</label>
+                  <select name="xhist" id="xhist" class="form-select form-select-sm" onchange="updatehhist()">
+                      <option value=""  selected>Select X-axis</option>
+                      {% for xhist in discrete_columns %}
+                        <option value="{{ xhist }}" {% if xhist in selected_xhist %}selected{% endif %}>
+                            {{ xhist }}
+                        </option>
+                    {% endfor %}
+                  </select>
+              </div>
+      
+              <!-- Select Y-Axis -->
+              <div class="col-md-6">
+                  <label for="yhist" class="form-label fw-bold small">Select Y-axis (hist plot stat):</label>
+                  <select name="yhist" id="yhist" class="form-select form-select-sm">
+                      <option value=""  selected>Select Y-axis</option>
+                      {% for stat_option in stat_options %}
+                          <option value="{{ stat_option }}" 
+                              {% if stat_option == selected_stat %}selected{% endif %}>
+                              {{ stat_option }}
+                          </option>
+                          {% endfor %}
+                  </select>
+              </div>
+              <div class="col-md-6">
+                <label for="hhist" class="form-label fw-bold small">Select Hue (Categorical):</label>
+                <select name="hhist" id="hhist" class="form-select form-select-sm" onchange='updatexhist()'>
+                    <option value=""  selected>Select Hue</option>
+                    {% for hhist in hue_columns %}
+                      <option value="{{ hhist }}" {% if hhist in selected_hhist %}selected{% endif %}>
+                          {{ hhist }}
+                      </option>
+                  {% endfor %}
+                </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+      </form>
+      
+    </div>
+</div>
+<div class="collapse" id="collapsekde">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">  Kde Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+          <div class="row mb-3">
+              <!-- Select Y-Axis -->
+              <div class="col-md-6">
+                  <label for="xkde" class="form-label fw-bold small">Select x-axis (Quantitative):</label>
+                  <select name="xkde" id="xkde" class="form-select form-select-sm">
+                      <option value="" disabled selected>Select x-axis</option>
+                      {% for xkde in quantitative %}
+                          <option value="{{ xkde }}" 
+                              {% if xkde == selected_kde_x %}selected{% endif %}>
+                              {{ xkde }}
+                          </option>
+                      {% endfor %}
+                  </select>
+              </div>
+          </div>
+          <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+      </form>
+      
+    </div>
+</div>
+<div class="collapse" id="collapsevio">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">  Violin Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+          <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="xvio" class="form-label fw-bold small">Select X-axis (Quantitative):</label>
+                <select name="xvio" id="xvio" class="form-select form-select-sm">
+                    <option value=""  selected>Select X-axis</option>
+                    {% for xvio in quantitative %}
+                        <option value="{{ xvio }}" 
+                            {% if xvio == selected_violin_x %}selected{% endif %}>
+                            {{ xvio }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+              <!-- Select Y-Axis -->
+              <div class="col-md-6">
+                  <label for="yvio" class="form-label fw-bold small">Select y-axis (Categorical):</label>
+                  <select name="yvio" id="yvio" class="form-select form-select-sm" onchange="updatehviolin()">
+                      <option value=""  selected>Select X-axis</option>
+                      {% for yvio in hue_columns %}
+                          <option value="{{ yvio }}" 
+                              {% if yvio == selected_violin_y %}selected{% endif %}>
+                              {{ yvio }}
+                          </option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <div class="col-md-6">
+                <label for="hue_violin" class="form-label fw-bold small">Select Hue (Categorical):</label>
+                <select name="hue_violin" id="hue_violin" class="form-select form-select-sm" onchange="updateyviolin()">
+                    <option value="" selected>Select Hue</option>
+                    {% for hue_violin in hue_columns %}
+                        <option value="{{ hue_violin }}" {% if hue_violin == selected_violin_hue %}selected{% endif %}>
+                            {{ hue_violin }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+      </form>
+      
+    </div>
+</div>
+<div class="collapse" id="collapsebar">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">  Bar Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+          <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="xbar" class="form-label fw-bold small">Select X-axis (Categorical):</label>
+                <select name="xbar" id="xbar" class="form-select form-select-sm">
+                    <option value=""  selected>Select X-axis</option>
+                    {% for xbar in hue_columns %}
+                        <option value="{{ xbar }}" 
+                            {% if xbar == selected_bar_x %}selected{% endif %}>
+                            {{ xbar }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+              <!-- Select Y-Axis -->
+              <div class="col-md-6">
+                  <label for="ybar" class="form-label fw-bold small">Select y-axis (Quantitative):</label>
+                  <select name="ybar" id="ybar" class="form-select form-select-sm">
+                      <option value=""  selected>Select X-axis</option>
+                      {% for ybar in quantitative %}
+                          <option value="{{ ybar }}" 
+                              {% if ybar == selected_bar_y %}selected{% endif %}>
+                              {{ ybar }}
+                          </option>
+                      {% endfor %}
+                  </select>
+              </div>
+          </div>
+          <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+      </form>
+    </div>
+</div>
+<div class="collapse" id="collapseheat">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">  Heatmap Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+        <p>A heatmap is a graphical representation of data where values are depicted as colors. It's commonly used to visualize the correlation between variables, helping to quickly identify patterns, trends, and relationships in complex datasets</p>
+        <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+        </form>
+    </div>
+</div>
+<div class="collapse" id="collapsepie">
+    <div class="card card-body"style=" width: 500px;">
+      <p class="form-label fw-bold">  Piechart Plot</p>
+      <form method="get" action="{% url 'vis_file' file_id %}">
+        <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="xpie" class="form-label fw-bold small">Select Column (Categorical):</label>
+            <select name="xpie" id="xpie" class="form-select form-select-sm" onchange="updateHueOrder()">
+                <option value="" selected>Select Column</option>
+                {% for xpie in hue_columns %}
+                    <option value="{{ xpie }}" {% if xpie == selected_pie_x %}selected{% endif %}>
+                        {{ xpie }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+        <button type="submit" class="btn btn-success btn-sm">Generate Plot</button>
+        </form>
+    </div>
+</div>
+  <!-- Display Line Plot -->
+  {% if line_plot_data %}
+      <h3   >Generated Line Plot:</h3>
+      <img src="data:image/png;base64,{{ line_plot_data }}" alt="Line Plot" class="img-fluid">
+  {% elif scatter_plot_data %}
+      <div class="mt-3">
+        <h3   >Generated Scatter Plot:</h3>
+          <img src="data:image/png;base64,{{ scatter_plot_data }}" alt="Scatter Plot" class="img-fluid">
+      </div>
+  {% elif box_plot_data %}
+      <h3>Generated Box Plot:</h3>
+      <div class="mt-3">
+      <img src="data:image/png;base64,{{ box_plot_data }}" alt="Box Plot" class="img-fluid">
+      </div>
+  {% elif hist_plot_data %}
+      <h3>Generated Hist Plot:</h3>
+      <div class="mt-3">
+      <img src="data:image/png;base64,{{ hist_plot_data }}" alt="Hist Plot" class="img-fluid">
+      </div>
+  {% elif kde_plot_data %}
+      <h3>Generated Kde Plot:</h3>
+      <div class="mt-3">
+      <img src="data:image/png;base64,{{ kde_plot_data }}" alt="Kde Plot" class="img-fluid">
+      </div>
+  {% elif violin_plot_data %}
+      <h3>Generated Violin Plot:</h3>
+      <div class="mt-3">
+      <img src="data:image/png;base64,{{ violin_plot_data }}" alt="Violin Plot" class="img-fluid">
+      </div>
+  {% elif bar_plot_data %}
+      <h3>Generated Bar Plot:</h3>
+      <div class="mt-3">
+      <img src="data:image/png;base64,{{ bar_plot_data }}" alt="Bar Plot" class="img-fluid">
+      </div>
+  {% elif pie_plot_data %}
+      <h3>Generated Piechart Plot:</h3>
+      <div class="mt-3">
+      <img src="data:image/png;base64,{{ pie_plot_data }}" alt="Piechart Plot" class="img-fluid">
+      </div>
+  {% elif heatmap_data %}
+      <h3>Generated Heatmap Plot:</h3>
+      <div class="mt-3">
+      <img src="data:image/png;base64,{{ heatmap_data }}" alt="Heatmap Plot" class="img-fluid">
+      </div>
+        {% else %}
+      <p>No plot available. Please select X and Y columns to generate a plot.</p>
+  {% endif %}
+
+  <!-- Offcanvas -->
+  <div class="offcanvas offcanvas-start show text-bg-dark" data-bs-scroll="true" tabindex="-1" 
+       id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+      <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Available Operations</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+          <a class="nav-link" href="{% url 'index_file' file_id %}">Indexation</a>
+          <a class="nav-link" href="{% url 'slice_file' file_id %}">Slicing</a>
+          <a class="nav-link" href="{% url 'vis_file' file_id %}">Visualisation(graphs)</a>
+          <a class="nav-link" href="{% url 'prob_file' file_id %}">Probability(var,mean,tend,pc)</a>
+      </div>
+  </div>
+</div>
+<script>
+    function updateyColumn() {
+        const xcolumn = document.getElementById("xcolumn").value;
+        const ycolumn = document.getElementById("ycolumn").options;
+
+        // Enable all options and disable the selected one
+        for (let option of ycolumn) {
+            option.disabled = option.value === xcolumn;
+        }
+    }
+
+    function updatexColumn() {
+        const ycolumn = document.getElementById("ycolumn").value;
+        const xcolumn = document.getElementById("xcolumn").options;
+
+        // Enable all options and disable the selected one
+        for (let option of xcolumn) {
+            option.disabled = option.value === ycolumn;
+        }
+    }
+    function updateybox() {
+        const ycolumn = document.getElementById("hbox").value;
+        const xcolumn = document.getElementById("ybox").options;
+
+        // Enable all options and disable the selected one
+        for (let option of xcolumn) {
+            option.disabled = option.value === ycolumn;
+        }
+    }
+    function updatehbox() {
+        const ycolumn = document.getElementById("ybox").value;
+        const xcolumn = document.getElementById("hbox").options;
+
+        // Enable all options and disable the selected one
+        for (let option of xcolumn) {
+            option.disabled = option.value === ycolumn;
+        }
+    }
+    function updateyscatter() {
+        const xscatter = document.getElementById("xscatter").value;
+        const yscatter = document.getElementById("yscatter").options;
+
+        // Enable all options and disable the selected one
+        for (let option of yscatter) {
+            option.disabled = option.value === xscatter;
+        }
+    }
+    function updatexhist() {
+        const hhist = document.getElementById("hhist").value;
+        const xhist = document.getElementById("xhist").options;
+
+        // Enable all options and disable the selected one
+        for (let option of xhist) {
+            option.disabled = option.value === hhist;
+        }
+    }
+    function updatehhist() {
+        const xhist = document.getElementById("xhist").value;
+        const hhist = document.getElementById("hhist").options;
+
+        // Enable all options and disable the selected one
+        for (let option of hhist) {
+            option.disabled = option.value === xhist;
+        }
+    }
+    function updatexscatter() {
+        const yscatter = document.getElementById("yscatter").value;
+        const xscatter = document.getElementById("xscatter").options;
+
+        // Enable all options and disable the selected one
+        for (let option of xscatter) {
+            option.disabled = option.value === yscatter;
+        }
+    }
+    function updatehviolin() {
+        const yvio = document.getElementById("yvio").value;
+        const hue_violin = document.getElementById("hue_violin").options;
+
+        // Enable all options and disable the selected one
+        for (let option of hue_violin) {
+            option.disabled = option.value === yvio;
+        }
+    }
+    function updateyviolin() {
+        const hue_violin = document.getElementById("hue_violin").value;
+        const yvio = document.getElementById("yvio").options;
+
+        // Enable all options and disable the selected one
+        for (let option of yvio) {
+            option.disabled = option.value === hue_violin;
+        }
+    }
+
+    const hueOrders = {{ hue_orders|safe }};
+
+    // Function to update hue order dropdown
+    function updateHueOrder() {
+        const hueColumns = document.getElementById("hue_columns").value;
+        const hueOrderDropdown = document.getElementById("hue_order");
+    
+        // Clear current options
+        hueOrderDropdown.innerHTML = "";
+    
+        if (hueOrders[hueColumns]) {
+            // Populate the dropdown with hue orders
+            hueOrders[hueColumns].forEach(value => {
+                const option = document.createElement("option");
+                option.value = value;
+                option.textContent = value;
+                hueOrderDropdown.appendChild(option);
+            });
+        } else {
+            // Add default option if no values are available
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "No values available";
+            hueOrderDropdown.appendChild(option);
+        }
+    }   
+</script>
+{% endblock %}

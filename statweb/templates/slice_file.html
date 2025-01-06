@@ -1,0 +1,247 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="fs-1">Slicing File: {{ file_name }}</h2>
+
+    <!-- Form for slicing rows -->
+    <form method="get" action="{% url 'slice_file' file_id %}" class="d-flex align-items-center mb-3">
+        <div class="form-floating me-2">
+            <input style="height: 40px; width: 250px;" type="number" placeholder="Number of Rows to Display" name="asc_row_limit" id="asc_row_limit" min="1" class="form-control" required>
+            <label for="asc_row_limit">Number of Rows to Display (asc)</label>
+        </div>
+        <button type="submit" class="btn btn-primary me-2" style="height: 55px;">Limit Rows (asc)</button>
+        <button class="btn btn-primary" style="height: 55px;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Operations</button>
+        <div class="offcanvas offcanvas-start show text-bg-dark" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+            <div class="offcanvas-header">
+              <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Available Operations</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <a class="nav-link" href="{% url 'index_file' file_id %}">Indexation</a>
+              <a class="nav-link" href="{% url 'slice_file' file_id %}">Slicing</a>
+              <a class="nav-link" href="{% url 'vis_file' file_id %}">Visualisation(graphs)</a>
+          <a class="nav-link" href="{% url 'prob_file' file_id %}">Probability(var,mean,tend,pc)</a>
+            </div>
+          </div>
+    </form>
+
+    <!-- Form for slicing rows in descending order -->
+    <form method="get" action="{% url 'slice_file' file_id %}" class="d-flex align-items-center mb-3">
+        <div class="form-floating me-2">
+            <input style="height: 40px; width: 260px;" type="number" placeholder="Number of Rows to Display" name="desc_row_limit" id="desc_row_limit" min="1" class="form-control" required>
+            <label for="desc_row_limit">Number of Rows to Display (desc)</label>
+        </div>
+        <button type="submit" class="btn btn-primary me-2" style="height: 55px;">Limit Rows (desc)</button>
+    </form>
+
+    <!-- Form for displaying a specific row -->
+    <form method="get" action="{% url 'slice_file' file_id %}" class="d-flex align-items-center mb-3">
+        <div class="form-floating me-2">
+            <input style="height: 40px; width: 260px;" type="number" placeholder="Row to display" name="disp_row" id="disp_row" min="1" class="form-control" required>
+            <label for="disp_row">Row to display</label>
+        </div>
+        <button type="submit" class="btn btn-primary me-2" style="height: 55px;">Display row</button>
+    </form>
+
+    <!-- Form for slicing by columns -->
+    <form method="get" action="{% url 'slice_file' file_id %}">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <h5>Slicing by columns and rows:</h5>
+            
+            <!-- Start column dropdown -->
+            <div class="col-md-6">
+                <select name="start_column" id="start_column" class="form-select" onchange="updateEndColumn()">
+                    <option value="" disabled selected>Start column</option>
+                    {% for column in columns %}
+                    <option value="{{ column }}">{{ column }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+    
+            <!-- End column dropdown -->
+            <div class="col-md-6">
+                <select name="end_column" id="end_column" class="form-select" onchange="updateStartColumn()">
+                    <option value="" disabled selected>End column</option>
+                    {% for column in columns %}
+                    <option value="{{ column }}">{{ column }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    
+        <div class="row mb-3">
+            <!-- Start row input -->
+            <div class="col-md-6">
+                <input type="number" name="start_row" id="start_row" class="form-control" placeholder="Start row" min="1" onchange="validatRows()">
+            </div>
+    
+            <!-- End row input -->
+            <div class="col-md-6">
+                <input type="number" name="end_row" id="end_row" class="form-control" placeholder="End row" min="1" onchange="validatRows()">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+    <form method="get" action="{% url 'slice_file' file_id %}">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <h5>Select Columns to Display:</h5>
+            <div class="col-md-12">
+                <select name="multiple_columns" id="multiple_columns" class="form-select" multiple onchange="updateSelectedColumns()">
+                    {% for column in columns %}
+                        <option value="{{ column }}" {% if column in multiple_columns %}selected{% endif %}>{{ column }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <input type="number" name="srow" id="srow" class="form-control" placeholder="Start Row" min="1" onchange="validateRows()">
+            </div>
+            <div class="col-md-6">
+                <input type="number" name="erow" id="erow" class="form-control" placeholder="End Row" min="1" onchange="validateRows()">
+            </div>
+        </div>
+    
+        <!-- Display selected columns -->
+        <div id="selected-columns" class="mt-3">
+            {% if multiple_columns %}
+                <h5>Selected Columns:</h5>
+                <ul>
+                    {% for column in multiple_columns %}
+                        <li>{{ column }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No columns selected yet.</p>
+            {% endif %}
+        </div>
+    
+        <!-- Start Row and End Row Inputs -->
+    
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</br>
+<h5>Select Column to groupby:</h5>
+    <form method="get" action="{% url 'slice_file' file_id %}">
+        <div class="row mb-3">
+        <div class="col-md-6">
+            <select name="groupby_column" id="groupby_column" class="form-select" >
+                <option value="" disabled selected>Group By</option>
+                {% for column in hue_columns %}
+                <option value="{{ column }}">{{ column }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <select name="aggregation_column" id="aggregation_column" class="form-select" multiple>
+                <option value="" disabled selected>Aggregate On</option>
+                {% for column in discrete_columns %}
+                <option value="{{ column }}">{{ column }}</option>
+                {% endfor %}
+            </select>
+        </div>
+            <div class="col-md-6 mt-3">
+                <select name="aggregation_type" id="aggregation_type" class="form-select" >
+                    <option value="" disabled selected>aggregation Type</option>
+            <option value="sum">Sum</option>
+            <option value="mean">Mean</option>
+            <option value="count">Count</option>
+            <option value="max">Max</option>
+            <option value="min">Min</option>
+        </select>
+    </div>
+</div>
+        <button type="submit" class="btn btn-primary">Group</button>
+    </form>
+    <div class="table-responsive mt-3">
+        {{ data_frame_html|safe }}
+    </div>
+</div>
+
+<script>
+    function updateEndColumn() {
+        const startColumn = document.getElementById("start_column").value;
+        const startColumnIndex = document.getElementById("start_column").selectedIndex;
+        const endColumnOptions = document.getElementById("end_column").options;
+    
+        // Enable all options initially
+        for (let option of endColumnOptions) {
+            option.disabled = false;
+        }
+    
+        // Disable options that are before or equal to the selected start column
+        for (let i = 0; i <= startColumnIndex; i++) {
+            endColumnOptions[i].disabled = true;
+        }
+    }
+    
+    function updateStartColumn() {
+        const endColumn = document.getElementById("end_column").value;
+        const endColumnIndex = document.getElementById("end_column").selectedIndex;
+        const startColumnOptions = document.getElementById("start_column").options;
+    
+        // Enable all options initially
+        for (let option of startColumnOptions) {
+            option.disabled = false;
+        }
+    
+        // Disable options that are after or equal to the selected end column
+        for (let i = endColumnIndex; i < startColumnOptions.length; i++) {
+            startColumnOptions[i].disabled = true;
+        }
+    }
+    function updateSelectedColumns() {
+        const selectElement = document.getElementById('multiple_columns');
+        const selectedOptions = Array.from(selectElement.selectedOptions);
+        const selectedColumnsDiv = document.getElementById('selected-columns');
+        
+        // Create the list of selected columns dynamically
+        let selectedColumnsList = '<h5>Selected Columns:</h5><ul>';
+        selectedOptions.forEach(option => {
+            selectedColumnsList += `<li>${option.text}</li>`;
+        });
+        selectedColumnsList += '</ul>';
+        
+        // Update the DOM with the new list
+        selectedColumnsDiv.innerHTML = selectedColumnsList;
+    }
+    function validateRows() {
+        var startRow = document.getElementById('srow').value;
+        var endRow = document.getElementById('erow').value;
+    
+        // Convert to integers
+        startRow = parseInt(startRow, 10);
+        endRow = parseInt(endRow, 10);
+    
+        // Check if startRow is not less than endRow
+        if (startRow >= endRow) {
+            alert('Start Row must be less than End Row.');
+            // Reset the values or handle as needed
+            document.getElementById('srow').value = '';
+            document.getElementById('erow').value = '';
+        }
+    }
+    function validatRows() {
+        var startRow = document.getElementById('start_row').value;
+        var endRow = document.getElementById('end_row').value;
+    
+        // Convert to integers
+        startRow = parseInt(startRow, 10);
+        endRow = parseInt(endRow, 10);
+    
+        // Check if startRow is not less than endRow
+        if (startRow >= endRow) {
+            alert('Start Row must be less than End Row.');
+            // Reset the values or handle as needed
+            document.getElementById('start_row').value = '';
+            document.getElementById('end_row').value = '';
+        }
+    }
+</script>
+
+{% endblock %}

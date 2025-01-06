@@ -1,0 +1,58 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+    .btn-outline-primary {
+        border: 1px solid #ccc;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+        border-radius: 4px;
+        background-color: transparent;
+        color: #007bff;
+        margin-right: 10px; /* Add some spacing between buttons */
+    }
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+    .custom-file-input {
+        display: none; /* Hide the actual file input */
+    }
+    .btn-container {
+        display: flex; /* Use flexbox for alignment */
+        gap: 10px; /* Add space between buttons */
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="fs-1">Upload Excel File</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="excel_file" class="btn btn-outline-primary">
+                Choose Excel File
+            </label>
+            <input type="file" id="excel_file" name="file" class="custom-file-input" accept=".xls,.xlsx" required />
+        </div>
+        <br>
+        <div class="form-floating mb-3">
+            <input type="text" name="name" placeholder="Custom File Name" class="form-control {% if form.name.errors %}is-invalid{% endif %}">
+            <label for="name">Custom File Name</label>
+            {% for error in form.name.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+    {% if data_frame_html %}
+        <h3 class="mt-5">Uploaded Data</h3>
+        <div class="table-responsive mt-3">
+            {{ data_frame_html|safe }}
+        </div>
+    {% endif %}
+</div>
+    {% endblock  %}

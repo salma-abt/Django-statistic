@@ -1,0 +1,123 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+
+<link href="{% static 'sign.css' %}" rel="stylesheet" type="text/css">
+
+    
+
+    <div class="container mt-5">
+        <div class="container mb-2"> 
+              {% if messages %}
+       {% for message in messages %}
+       {% if 'success' in message.tags %}
+           <div class="alert alert-success alert-dismissible fade show alert-custom" role="alert">
+               <strong>{{ message }}</strong>
+               <i class="fa-solid fa-check"></i>
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+           </div>
+           {% elif 'error' in message.tags %}
+           <div class="alert alert-warning alert-dismissible fade show alert-custom" role="alert">         
+               <strong>{{ message }}</strong>
+               <i class="fa-solid fa-circle-exclamation"></i>
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+           </div>
+           {% elif 'info' in message.tags %}
+           <div class="alert alert-info alert-dismissible fade show alert-custom" role="alert">         
+                <strong>{{ message }}</strong>
+                <i class="fa-solid fa-circle-info"></i>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div class="alert alert-primary alert-dismissible fade show alert-custom" role="alert">
+                <strong>Fill up the form with valid inputs!</strong>
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+           {% endif %}
+           {% endfor %}
+           {% else %}
+           <div class="alert alert-primary alert-dismissible fade show alert-custom" role="alert">
+               <strong>Fill up the form with valid inputs!</strong>
+               <i class="fa-solid fa-circle-info"></i>
+           </div>
+           {% endif %}
+       </div>
+    <form method="post" action="{% url 'sign_up' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    <input type="text" class="form-control  {% if form.first_name.errors %}is-invalid{% endif %}" name="first_name" id="vs01" placeholder="First Name">
+                    <label for="vs01">First Name</label>
+                    {% for error in form.first_name.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    
+                {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    <input type="text" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" name="last_name" placeholder="Last Name" value="" >
+                    <label for="floatingPrenom">Last Name</label>
+                    {% for error in form.last_name.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" name="email" placeholder="Email Address" value="{{form.email.valeu}}" >
+                    <label for="floatingEmail">Email Address</label>
+                    {% for error in form.email.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    
+                {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    <input type="password" class="form-control {% if form.motdepass.errors %}is-invalid{% endif %}" name="motdepass" placeholder="Password" >
+                    <label for="floatingPassword">Password</label>
+                    {% for error in form.motdepass.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    
+                {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-floating">
+                    <input type="password" class="form-control {% if form.motdepass_confirm.errors %}is-invalid{% endif %}" name="motdepass_confirm" placeholder="Confirm Password" >
+                    <label for="floatingPasswordConfirm">Confirm Password</label>
+                    {% for error in form.motdepass_confirm.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 d-flex align-items-center">
+                <button type="button" class="btn btn-outline-secondary ms-5" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Sign Up</button>
+                <p class="ms-3 mb-0">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+            </div>
+        </div>
+        <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="staticBackdropLabel">Alert!</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Are you sure you provided valid information?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-outline-secondary">submit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+    </form>
+
+
+
+{% endblock  %}

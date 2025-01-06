@@ -1,0 +1,32 @@
+{% extends "navbar.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="fs-1">Viewing File: {{ file_name }}</h2>
+    <form method="get" action="{% url 'view_file' file_id %}" class="d-flex align-items-center mb-3">
+        <div class="form-floating me-2">
+            <input style="height: 40px; width: 213px;" type="number" placeholder="Number of Rows to Display" name="row_limit" id="row_limit" value="{{ row_limit }}" min="1" class="form-control" required>
+            <label for="row_limit">Number of Rows to Display</label>
+        </div>
+        <button type="submit" class="btn btn-primary me-2" style="height: 55px;">Limit Rows</button>
+        <button class="btn btn-primary" style="height: 55px;" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">Operations</button>
+
+<div class="offcanvas offcanvas-start show text-bg-dark" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Available Operations</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="nav-link" href="{% url 'index_file' file_id %}">Indexation</a>
+    <a class="nav-link" href="{% url 'slice_file' file_id %}">Slicing</a>
+    <a class="nav-link" href="{% url 'vis_file' file_id %}">Visualisation(graphs)</a>
+    <a class="nav-link" href="{% url 'prob_file' file_id %}">Probability(var,mean,tend,pc)</a>
+  </div>
+</div>
+    </form>
+    <div class="table-responsive mt-3">
+        {{ data_frame_html|safe }}
+    </div>
+</div>
+{% endblock %}
